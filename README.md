@@ -1,5 +1,5 @@
 #달달한 노래 추천!!   
-![사진](https://music.bugs.co.kr/album/20100227?wl_ref=S_tr_01_01)
+[![사진](https://music.bugs.co.kr/album/20100227?wl_ref=S_tr_01_01)]
 
 ## 우효 - 민들레
 ####2017.05.30
