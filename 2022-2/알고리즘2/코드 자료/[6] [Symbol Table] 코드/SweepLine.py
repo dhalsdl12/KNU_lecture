@@ -1,19 +1,20 @@
 from queue import PriorityQueue
 from RedBlackBST import LLRB
 
+
 class Segment:
     def __init__(self, x1, y1, x2, y2):
-        assert(x1==x2 or y1==y2) # Accept either a horizontal or vertical segment  
-        assert(not (x1==x2 and y1==y2)) # Two end points cannot be equal              
+        assert(x1 == x2 or y1 == y2) # Accept either a horizontal or vertical segment
+        assert(not (x1 == x2 and y1 == y2)) # Two end points cannot be equal
 
         # Put smaller values in (x1,y1) and larger values in (x2,y2)
-        if x1==x2:            
-            if y1<y2: self.x1, self.y1, self.x2, self.y2 = x1, y1, x2, y2
+        if x1 == x2:
+            if y1 < y2: self.x1, self.y1, self.x2, self.y2 = x1, y1, x2, y2
             else: self.x1, self.y1, self.x2, self.y2 = x1, y2, x2, y1
-        elif y1==y2:
-            if x1<x2: self.x1, self.y1, self.x2, self.y2 = x1, y1, x2, y2
+        elif y1 == y2:
+            if x1 < x2: self.x1, self.y1, self.x2, self.y2 = x1, y1, x2, y2
             else: self.x1, self.y1, self.x2, self.y2 = x2, y1, x1, y2
-    
+
     def isHorizontal(self):
         return self.y1 == self.y2
 
@@ -31,15 +32,40 @@ class Segment:
     # This operator is required for grading
     def __eq__(self, other):
         if other == None: return False
-        if not isinstance(other, Segment): return False        
+        if not isinstance(other, Segment): return False
         return self.x1 == other.x1 and self.y1 == other.y1 and self.x2 == other.x2 and self.y2 == other.y2
+
 
 '''
 segments: list of Segment objects
 return value: list of Segment pairs that intersect
 '''
+
+
 def sweepLine(segments):
-    pass
+    minPQ = PriorityQueue()
+    llrb = LLRB()
+    result = []
+    for seg in segments:
+        minPQ.put((seg.x1, seg))
+        if seg.isVertical():
+            continue
+        minPQ.put((seg.x2, seg))
+
+    while True:
+        e = minPQ.get()
+        if e[1].isHorizontal():
+            if llrb.contains(e[1].y1):
+                llrb.delete(e[1].y1)
+            else:
+                llrb.put(e[1].y1, e[1])
+        elif e[1].isVertical():
+            for c in llrb.rangeSearch(e[1].y1, e[1].y2):
+                result.append((llrb.get(c), e[1]))
+        if minPQ.empty():
+            break
+    return result
+
 
 if __name__ == "__main__":
     '''
@@ -47,12 +73,12 @@ if __name__ == "__main__":
     (1,4)--(8,4) (6,3)--(6,7)
     (9,6)--(16,6) (13,5.5)--(13,9.5)
     (0,1)--(15,1) (14,0)--(14,2)
-    '''    
+    '''
     intersections = sweepLine([Segment(0,1,15,1), Segment(14,0,14,2), Segment(1,4,8,4), Segment(6,3,6,7),\
         Segment(2,5,4,5), Segment(3,8,11,8), Segment(9,6,16,6), Segment(13,5.5,13,9.5)])
-    print(intersections)    
+    print(intersections)
     print()
-    
+
     # Grading example utilizing __eq__() operator
     if intersections == [(Segment(1,4,8,4),Segment(6,3,6,7)),(Segment(9,6,16,6),Segment(13,5.5,13,9.5)),\
         (Segment(0,1,15,1),Segment(14,0,14,2))]:
@@ -69,6 +95,5 @@ if __name__ == "__main__":
     (14,6.5)--(16,6.5) (15,5.5)--(15,7.5)
     '''
     intersections = sweepLine([Segment(1,3,6,3), Segment(5,0,5,9), Segment(4,7,9,7), Segment(8,6,8,10),\
-        Segment(10,4,13,4), Segment(11,2,17,2), Segment(12,1,12,5), Segment(15,5.5,15,7.5), Segment(14,6.5,16,6.5)])    
+        Segment(10,4,13,4), Segment(11,2,17,2), Segment(12,1,12,5), Segment(15,5.5,15,7.5), Segment(14,6.5,16,6.5)])
     print(intersections)
-    
