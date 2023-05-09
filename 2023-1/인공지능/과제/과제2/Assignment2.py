@@ -1,7 +1,7 @@
 '''
-01
-6-2.py는 compile 함수에서 손실 함수로 categorical_crossentropy와 옵티마이저로 Adam을 사용한다. 
-이들을 각각 MSE와 SGD로 바꾸어 학습을 수행하여 성능을 비교하고, 각각의 정확률, 정확률 그래프, 손실 함수 그래프를 첨부하시오.
+02
+6-2.py는 활성 함수로 ReLU를 사용한다.
+19, 20, 24행에서 relu를 sigmoid로 변경해 성능을 비교하고, 각각의 정확률, 정확률 그래프, 손실 함수 그래프를 첨부하시오.
 '''
 
 import numpy as np
@@ -9,7 +9,7 @@ import tensorflow as tf
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D,MaxPooling2D,Flatten,Dense,Dropout
-from tensorflow.keras.optimizers import Adam, SGD
+from tensorflow.keras.optimizers import Adam
 
 # MNIST 데이터셋을 읽고 신경망에 입력할 형태로 변환
 (x_train,y_train),(x_test,y_test)=mnist.load_data()
@@ -22,21 +22,27 @@ y_test=tf.keras.utils.to_categorical(y_test,10)
 
 # 신경망 모델 설계
 cnn=Sequential()
+
+# 19행
 cnn.add(Conv2D(32,(3,3),activation='relu',input_shape=(28,28,1)))
+# cnn.add(Conv2D(32,(3,3),activation='sigmoid',input_shape=(28,28,1)))
+
+# 20행
 cnn.add(Conv2D(64,(3,3),activation='relu'))
+# cnn.add(Conv2D(64,(3,3),activation='sigmoid'))
 cnn.add(MaxPooling2D(pool_size=(2,2)))
 cnn.add(Dropout(0.25))
 cnn.add(Flatten())
+
+# 24행
 cnn.add(Dense(128,activation='relu'))
+# cnn.add(Dense(128,activation='sigmoid'))
+
 cnn.add(Dropout(0.5))
 cnn.add(Dense(10,activation='softmax'))
 
 # 신경망 모델 학습
-# cnn.compile(loss='categorical_crossentropy',optimizer=Adam(),metrics=['accuracy'])
-
-# loss MSE optimizer SGD
-cnn.compile(loss='mse',optimizer=SGD(),metrics=['accuracy'])
-
+cnn.compile(loss='categorical_crossentropy',optimizer=Adam(),metrics=['accuracy'])
 hist=cnn.fit(x_train,y_train,batch_size=128,epochs=12,validation_data=(x_test,y_test),verbose=2)
 
 # 신경망 모델 정확률 평가
