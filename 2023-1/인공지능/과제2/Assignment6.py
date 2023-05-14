@@ -30,6 +30,8 @@ embed_space_dim=16 # 16차원의 임베딩 공간
 x_train=preprocessing.sequence.pad_sequences(x_train,maxlen=sample_siz)
 x_test=preprocessing.sequence.pad_sequences(x_test,maxlen=sample_siz)
 
+early = EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True)
+
 # 신경망 모델 설계와 학습
 embed=Sequential()
 embed.add(Embedding(input_dim=dic_siz,output_dim=embed_space_dim,input_length=sample_siz))
@@ -37,7 +39,9 @@ embed.add(Flatten())
 embed.add(Dense(32,activation='relu'))
 embed.add(Dense(1,activation='sigmoid'))
 embed.compile(loss='binary_crossentropy',optimizer='Adam',metrics=['accuracy'])
-hist=embed.fit(x_train,y_train,epochs=20,batch_size=64,validation_data=(x_test,y_test),verbose=2)
+# hist=embed.fit(x_train,y_train,epochs=20,batch_size=64,validation_data=(x_test,y_test),verbose=2)
+hist=embed.fit(x_train,y_train,epochs=20,batch_size=64,
+               validation_data=(x_test,y_test),verbose=2, callbacks=[early])
 
 embed.summary()
 
