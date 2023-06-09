@@ -1,23 +1,21 @@
 '''
-07. 10-4.py를 10개 숫자 부류 중 [5] 한개 부류에만 적용하는 버전으로 수정하고 품질을 평가하기 위해 다음을 제시하시오. 
+08. fashion MNIST에서 다른 패션 아이템 한 부류를 고른 다음 10-5.py을 실행하고 품질을 평가하기 위해 다음을 제시하시오. 
 1) 마지막 iteration에서의 판별망(D)의 real data에 대한 분별 accuracy, fake data에 대한 분별 accuracy 
 2) 학습을 마친 후 50개의 생성된 이미지 도시.
-+7번 학습 시 iteration(교재 코드에서는 epoch로 표기됨)값을 1000으로 낮춰 적용하세요.
++8번 학습 시 iteration(교재 코드에서는 epoch로 표기됨) 값을 1000으로 낮춰 적용하세요.
 '''
 import numpy as np
-from tensorflow.keras.datasets import mnist
-from tensorflow.keras.layers import Input,Activation,Dense,Flatten,Reshape,Conv2D,Conv2DTranspose,Dropout,BatchNormalization,UpSampling2D
+from tensorflow.keras.datasets import fashion_mnist
+from tensorflow.keras.layers import Input,Activation,Dense,Flatten,Reshape,Conv2D,Conv2DTranspose,Dropout,BatchNormalization,UpSampling2D,LeakyReLU
 from tensorflow.keras.models import Model
 from tensorflow.keras import backend as K
 from tensorflow.keras.losses import mse
 import matplotlib.pyplot as plt
 
-(x_train,y_train),(x_test,y_test)=mnist.load_data()
-
-x_train = x_train[y_train == 5]
-x_test = x_test[y_test == 5]
-x_train = (x_train.astype('float32') / 255.0) * 2.0 - 1.0  # [-1,1] 구간
-x_test = (x_test.astype('float32') / 255.0) * 2.0 - 1.0
+(x_train,y_train),(x_test,y_test)=fashion_mnist.load_data()
+x_train=x_train[np.isin(y_train,[9])] # 9번 부류는 ankle boot
+x_train = (x_train.astype('float32')/255.0)*2.0-1.0 # [-1,1] 구간
+x_test = (x_test.astype('float32')/255.0)*2.0-1.0
 x_train = np.reshape(x_train, (len(x_train), 28, 28, 1))
 x_test = np.reshape(x_test, (len(x_test), 28, 28, 1))
 
@@ -107,10 +105,11 @@ for i in range(1, epochs+1): # 학습을 수행
             plt.imshow(img[0].reshape(28,28),cmap='gray')
             plt.xticks([]); plt.yticks([])
         plt.show()
-    if i == epochs:
-        real_acc, fake_acc = calculate_discriminator_accuracy()
-        print("Real Data Accuracy:", real_acc)
-        print("Fake Data Accuracy:", fake_acc)
+ 
+real_acc, fake_acc = calculate_discriminator_accuracy()
+print("Real Data Accuracy:", real_acc)
+print("Fake Data Accuracy:", fake_acc)
+
 
 imgs=generator.predict(np.random.normal(0,1,(50,zdim)))
 plt.figure(figsize=(20,10)) # 학습을 마친 후 50개 샘플을 생성하여 출력
@@ -118,3 +117,20 @@ for i in range(50):
     plt.subplot(5,10,i+1)
     plt.imshow(imgs[i].reshape(28,28),cmap='gray')
     plt.xticks([]); plt.yticks([])
+    
+# 훈련 집합 x_train에서 img와 가장 가까운 영상을 찾아주는 함수
+def most_similar(img,x_train):
+    vmin=1.0e10
+    for i in range(len(x_train)):
+        dist=np.mean(np.abs(img-x_train[i]))
+        if dist<vmin:
+            imin,vmin=i,dist
+        return x_train[imin]
+
+# 50개의 영상에 대해 가장 가까운 영상을 찾아 보여줌
+plt.figure(figsize=(20,10))
+for k in range(50):
+    plt.subplot(5,10,k+1)
+    plt.imshow(most_similar(imgs[k],x_train).reshape(28,28),cmap='gray')
+    plt.xticks([]); plt.yticks([])
+plt.show()
