@@ -23,7 +23,24 @@ for i in range(n_episode):
         r=np.random.random()
         eps=max(0.01,eps*eps_decay) # 엡시론을 조금씩 줄여나감
         if(r<eps): # eps 비율만큼 임의 선택
-            a=np.random.randint(0,env.action_space.n)
+            if s==0:
+              a=np.random.choice([1,2])
+            elif s==1 or s==2:
+              a=np.random.choice([0,1,2])
+            elif s==3:
+              a=np.random.choice([0,1])
+            elif s==4 or s==8:
+              a=np.random.choice([1,2,3])
+            elif s==7 or s==11:
+              a=np.random.choice([0,1,3])
+            elif s==12:
+              a=np.random.choice([2,3])
+            elif s==13 or s==14:
+              a=np.random.choice([0,2,3])
+            elif s==15:
+              a=np.random.choice([0,3])
+            else:
+              a=np.random.randint(0,env.action_space.n)
         else:
             argmaxs=np.argwhere(Q[s,:]==np.amax(Q[s,:])).flatten().tolist()
             a=np.random.choice(argmaxs)
