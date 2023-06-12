@@ -66,37 +66,3 @@ for i in range(n):
     plt.imshow(decoded_img[i].reshape(28, 28),cmap='gray')
     plt.xticks([]); plt.yticks([])
 plt.show()
-
-# 생성 실험 1: 첫 번째 샘플의 잠복 공간 표현에 잡음을 섞어 새로운 샘플 생성
-x0=x_test[0]
-z=model_encoder.predict(x0.reshape(1,28,28,1))
-print(np.round(z,3))
-zz=np.zeros((20,zdim))
-for i in range(20):
-    zz[i]=z[0]+(i-10)/10.0
-generated_img=model_decoder.predict(zz)
-
-plt.figure(figsize=(20, 4))
-for i in range(20):
-    plt.subplot(2,10,i+1)
-    plt.imshow(generated_img[i].reshape(28,28),cmap='gray')
-    plt.xticks([]); plt.yticks([])
-    plt.title('noise='+str((i-10)/10.0))
-plt.show()
-
-# 생성 실험 2: 같은 부류의 두 샘플 사이를 보간하여 새로운 샘플 생성
-x4_6=np.array((x_test[4],x_test[6]))
-z=model_encoder.predict(x4_6)
-zz=np.zeros((20,zdim))
-for i in range(20):
-    alpha=i/(20.0-1.0)
-    zz[i]=(1.0-alpha)*z[0]+alpha*z[1]
-generated_img=model_decoder.predict(zz)
-
-plt.figure(figsize=(20, 4))
-for i in range(20):
-    plt.subplot(2,10,i+1)
-    plt.imshow(generated_img[i].reshape(28,28),cmap='gray')
-    plt.xticks([]); plt.yticks([])
-    plt.title('alpha='+str(round(i/(20.0-1.0),3)))
-plt.show()
