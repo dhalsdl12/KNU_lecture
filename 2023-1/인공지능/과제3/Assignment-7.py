@@ -84,14 +84,14 @@ def train_generator():
 # 판별 정확도 계산
 def calculate_discriminator_accuracy():
     # Real 데이터에 대한 판별 정확도 계산
-    real_accuracy = discriminator.evaluate(x_train, np.ones((len(x_train), 1)), verbose=0)[1]
+    real_accuracy = discriminator.evaluate(x_test, np.ones((len(x_test), 1)), verbose=0)[1]
     
     # Fake 데이터 생성
-    p = np.random.normal(0, 1, (len(x_train), zdim))
+    p = np.random.normal(0, 1, (len(x_test), zdim))
     fake_images = generator.predict(p)
     
     # Fake 데이터에 대한 판별 정확도 계산
-    fake_accuracy = discriminator.evaluate(fake_images, np.zeros((len(x_train), 1)), verbose=0)[1]
+    fake_accuracy = discriminator.evaluate(fake_images, np.zeros((len(x_test), 1)), verbose=0)[1]
     
     return real_accuracy, fake_accuracy
 

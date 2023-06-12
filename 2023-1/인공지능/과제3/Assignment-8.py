@@ -13,7 +13,7 @@ from tensorflow.keras.losses import mse
 import matplotlib.pyplot as plt
 
 (x_train,y_train),(x_test,y_test)=fashion_mnist.load_data()
-x_train=x_train[np.isin(y_train,[9])] # 9번 부류는 ankle boot
+x_train=x_train[np.isin(y_train,[5])] # 5번 부류는 ankle boot
 x_train = (x_train.astype('float32')/255.0)*2.0-1.0 # [-1,1] 구간
 x_test = (x_test.astype('float32')/255.0)*2.0-1.0
 x_train = np.reshape(x_train, (len(x_train), 28, 28, 1))
@@ -82,14 +82,14 @@ def train_generator():
 # 판별 정확도 계산
 def calculate_discriminator_accuracy():
     # Real 데이터에 대한 판별 정확도 계산
-    real_accuracy = discriminator.evaluate(x_train, np.ones((len(x_train), 1)), verbose=0)[1]
+    real_accuracy = discriminator.evaluate(x_test, np.ones((len(x_test), 1)), verbose=0)[1]
     
     # Fake 데이터 생성
-    p = np.random.normal(0, 1, (len(x_train), zdim))
+    p = np.random.normal(0, 1, (len(x_test), zdim))
     fake_images = generator.predict(p)
     
     # Fake 데이터에 대한 판별 정확도 계산
-    fake_accuracy = discriminator.evaluate(fake_images, np.zeros((len(x_train), 1)), verbose=0)[1]
+    fake_accuracy = discriminator.evaluate(fake_images, np.zeros((len(x_test), 1)), verbose=0)[1]
     
     return real_accuracy, fake_accuracy
 
