@@ -13,7 +13,7 @@ from tensorflow.keras.losses import mse
 import matplotlib.pyplot as plt
 
 (x_train,y_train),(x_test,y_test)=fashion_mnist.load_data()
-x_train=x_train[np.isin(y_train,[5])] # 5번 부류는 ankle boot
+x_train=x_train[np.isin(y_train,[7])]
 x_train = (x_train.astype('float32')/255.0)*2.0-1.0 # [-1,1] 구간
 x_test = (x_test.astype('float32')/255.0)*2.0-1.0
 x_train = np.reshape(x_train, (len(x_train), 28, 28, 1))
@@ -81,17 +81,19 @@ def train_generator():
 
 # 판별 정확도 계산
 def calculate_discriminator_accuracy():
-    # Real 데이터에 대한 판별 정확도 계산
-    real_accuracy = discriminator.evaluate(x_test, np.ones((len(x_test), 1)), verbose=0)[1]
+    discriminator.evaluate(x_test, np.ones((len(x_test), 1)))
     
-    # Fake 데이터 생성
     p = np.random.normal(0, 1, (len(x_test), zdim))
-    fake_images = generator.predict(p)
+    fake = generator.predict(p)
+    discriminator.evaluate(fake, np.zeros((len(x_test), 1)))
     
-    # Fake 데이터에 대한 판별 정확도 계산
-    fake_accuracy = discriminator.evaluate(fake_images, np.zeros((len(x_test), 1)), verbose=0)[1]
-    
-    return real_accuracy, fake_accuracy
+    real_acc = discriminator.predict(x_test)
+    print("Real Data Accuracy:", np.sum(real_acc>=0.5)/len(real_acc))
+
+    p=np.random.normal(0,1,(len(x_test),zdim))
+    fake=generator.predict(p)
+    fake_acc = discriminator.predict(fake)
+    print('Fake Data Accuracy:', np.sum(fake_acc<0.5)/len(fake_acc))
 
 for i in range(1, epochs+1): # 학습을 수행
     train_discriminator(x_train)
@@ -105,10 +107,9 @@ for i in range(1, epochs+1): # 학습을 수행
             plt.imshow(img[0].reshape(28,28),cmap='gray')
             plt.xticks([]); plt.yticks([])
         plt.show()
- 
-real_acc, fake_acc = calculate_discriminator_accuracy()
-print("Real Data Accuracy:", real_acc)
-print("Fake Data Accuracy:", fake_acc)
+    
+    if i == epochs:
+        calculate_discriminator_accuracy()
 
 
 imgs=generator.predict(np.random.normal(0,1,(50,zdim)))
@@ -116,21 +117,5 @@ plt.figure(figsize=(20,10)) # 학습을 마친 후 50개 샘플을 생성하여 
 for i in range(50):
     plt.subplot(5,10,i+1)
     plt.imshow(imgs[i].reshape(28,28),cmap='gray')
-    plt.xticks([]); plt.yticks([])
-    
-# 훈련 집합 x_train에서 img와 가장 가까운 영상을 찾아주는 함수
-def most_similar(img,x_train):
-    vmin=1.0e10
-    for i in range(len(x_train)):
-        dist=np.mean(np.abs(img-x_train[i]))
-        if dist<vmin:
-            imin,vmin=i,dist
-        return x_train[imin]
-
-# 50개의 영상에 대해 가장 가까운 영상을 찾아 보여줌
-plt.figure(figsize=(20,10))
-for k in range(50):
-    plt.subplot(5,10,k+1)
-    plt.imshow(most_similar(imgs[k],x_train).reshape(28,28),cmap='gray')
     plt.xticks([]); plt.yticks([])
 plt.show()
