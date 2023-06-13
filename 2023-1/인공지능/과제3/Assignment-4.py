@@ -22,7 +22,7 @@ for i in range(n_episode):
     for j in range(length_episode):
         r=np.random.random()
         eps=max(0.01,eps*eps_decay) # 엡시론을 조금씩 줄여나감
-        if(r<eps): # eps 비율만큼 임의 선택
+        if(r<eps or sum(Q[s, :]) == 0): # eps 비율만큼 임의 선택
             if s==0:
               a=np.random.choice([1,2])
             elif s==1 or s==2:
