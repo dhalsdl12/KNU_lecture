@@ -13,7 +13,7 @@ from tensorflow.keras.losses import mse
 import matplotlib.pyplot as plt
 
 (x_train,y_train),(x_test,y_test)=fashion_mnist.load_data()
-x_train=x_train[np.isin(y_train,[7])]
+x_train=x_train[np.isin(y_train,[1])]
 x_train = (x_train.astype('float32')/255.0)*2.0-1.0 # [-1,1] 구간
 x_test = (x_test.astype('float32')/255.0)*2.0-1.0
 x_train = np.reshape(x_train, (len(x_train), 28, 28, 1))
